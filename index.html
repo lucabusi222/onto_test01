@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Organoid‑on‑Chip Intake Form — Ontology/Digital Twin</title>
+<style>
+  :root{
+    --bg:#0b1020; --panel:#121a36; --ink:#e9ecf1; --muted:#98a0b3; --accent:#6fb3ff; --accent2:#9be7c4;
+    --red:#ff8a8a; --orange:#ffb36f; --blue:#7abbff; --green:#87e1b3;
+    --border: rgba(255,255,255,0.08);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(180deg,#0b1020,#0f1730 60%,#0b1020);color:var(--ink);
+       font:16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji"}
+  header{position:sticky;top:0;background:rgba(11,16,32,0.8);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);z-index:10}
+  .wrap{max-width:1000px;margin:0 auto;padding:18px}
+  h1{margin:6px 0 2px;font-size:1.35rem;letter-spacing:.2px}
+  .subtitle{color:var(--muted);font-size:.95rem;margin:0 0 8px}
+  main{max-width:1000px;margin:16px auto;padding:0 18px 120px}
+  .grid{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:880px){.grid{grid-template-columns:1fr 1fr}}
+  fieldset{border:1px solid var(--border);border-radius:14px;padding:14px;background:var(--panel)}
+  legend{padding:0 8px;color:var(--accent);font-weight:600}
+  label{display:block;margin:10px 0 6px}
+  input[type="text"],input[type="number"],input[type="datetime-local"],textarea,select{
+    width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#0c1430;color:var(--ink)
+  }
+  input[type="checkbox"]{transform:scale(1.1)}
+  textarea{min-height:84px;resize:vertical}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  .muted{color:var(--muted);font-size:.9rem}
+  .hint{font-size:.8rem;color:var(--muted)}
+  .pill{display:inline-block;padding:.12rem .5rem;border:1px solid var(--border);border-radius:999px;color:var(--muted);margin:.2rem .3rem 0 0}
+  .actions{position:fixed;inset:auto 0 0 0;background:rgba(8,12,24,0.9);backdrop-filter:blur(8px);border-top:1px solid var(--border)}
+  .actions .wrap{display:flex;gap:10px;align-items:center;justify-content:space-between}
+  button{appearance:none;border:none;border-radius:12px;padding:11px 16px;font-weight:600;color:#041221;background:var(--accent);cursor:pointer}
+  button.secondary{background:#1d274d;color:var(--ink);border:1px solid var(--border)}
+  button.warn{background:var(--red);color:#21080a}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .chip{background:#0e1632;border:1px solid var(--border);padding:6px 10px;border-radius:999px}
+  table{width:100%;border-collapse:collapse;margin-top:8px}
+  th,td{border:1px solid var(--border);padding:8px;text-align:left}
+  th{background:#101a3a}
+  .mini{font-size:.85rem}
+  .right{display:flex;gap:8px;align-items:center}
+  .spacer{flex:1}
+  .badge{font-size:.75rem;background:#0f1a37;border:1px solid var(--border);color:var(--muted);padding:2px 8px;border-radius:999px}
+</style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Organoid‑on‑Chip Intake — Ontology/Digital Twin</h1>
+      <p class="subtitle">Hybrid form capturing ontology‑friendly fields + free‑text for nuance. Exports JSON matching our schema.</p>
+      <div class="chips">
+        <span class="chip">Use controlled vocabularies (MONDO/DOID, UBERON, CL, ChEBI, HGNC)</span>
+        <span class="chip">Units: SI</span>
+        <span class="chip">Leave unknowns blank</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <form id="intakeForm">
+      <div class="grid">
+        <fieldset>
+          <legend>A) Administrative & purpose</legend>
+          <label>Project ID<input name="project_id" required placeholder="e.g., OCC-2025-042"/></label>
+          <div class="row">
+            <label>PI / Lab<input name="pi_lab"/></label>
+            <label>Species (NCBITaxon)<input name="species" list="specieslist" placeholder="Homo sapiens (9606)"/></label>
+          </div>
+          <label>Disease/indication (MONDO/DOID)<input name="disease_mondo" placeholder="MONDO:0004992"/></label>
+          <label>Scientific question <span class="hint">(≤ 300 chars)</span>
+            <input name="purpose" maxlength="300"/>
+          </label>
+          <label>Ethics approvals<input name="ethics" placeholder="IRB/animal protocol IDs"/></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>B) Biological system</legend>
+          <label>Tissue of origin (UBERON)<input name="tissue" placeholder="UBERON:0002048"/></label>
+          <label>Tumor model
+            <select name="tumor_model">
+              <option value="">— select —</option>
+              <option>patient-derived</option>
+              <option>cell-line</option>
+              <option>organoid-biobank</option>
+            </select>
+          </label>
+          <div class="row">
+            <label>Cell line / Biobank ID<input name="model_id"/></label>
+            <label>Passage number<input type="number" name="passage" min="0"/></label>
+          </div>
+          <label>Key genetic alterations (HGNC/Ensembl IDs)
+            <textarea name="genetics" placeholder="TP53 p.R175H; EGFR amplification; BRAF V600E" ></textarea>
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>C) Cell populations (seeding fractions, %)</legend>
+          <div class="row3">
+            <label>Tumor %<input type="number" name="cell_fractions.tumor" min="0" max="100" step="0.1"/></label>
+            <label>Endothelial %<input type="number" name="cell_fractions.endothelial" min="0" max="100" step="0.1"/></label>
+            <label>Fibroblast %<input type="number" name="cell_fractions.fibroblast" min="0" max="100" step="0.1"/></label>
+          </div>
+          <div class="row3">
+            <label>Macrophage M1 %<input type="number" name="cell_fractions.macrophage_m1" min="0" max="100" step="0.1"/></label>
+            <label>Macrophage M2 %<input type="number" name="cell_fractions.macrophage_m2" min="0" max="100" step="0.1"/></label>
+            <label>NK %<input type="number" name="cell_fractions.nk" min="0" max="100" step="0.1"/></label>
+          </div>
+          <div class="row3">
+            <label>T CD4 %<input type="number" name="cell_fractions.t_cd4" min="0" max="100" step="0.1"/></label>
+            <label>T CD8 %<input type="number" name="cell_fractions.t_cd8" min="0" max="100" step="0.1"/></label>
+            <label>Other (name=%, comma‑sep)<input name="cell_fractions.other" placeholder="B cells=5, DC=3"/></label>
+          </div>
+          <p class="hint">Use CL/CLO terms where possible.</p>
+        </fieldset>
+
+        <fieldset>
+          <legend>D) Chip configuration</legend>
+          <label>Platform / Model<input name="chip_model" placeholder="e.g., Emulate ZOE, Mimetas OrganoPlate"/></label>
+          <div class="row3">
+            <label>Chamber geometry (µm)<input name="chamber_geom" placeholder="LxWxH, e.g., 5000x600x200"/></label>
+            <label>ECM composition (ChEBI)<input name="ecm.composition" placeholder="collagen I; Matrigel"/></label>
+            <label>ECM concentration (mg/mL)<input type="number" step="0.1" name="ecm.concentration_mg_ml"/></label>
+          </div>
+          <div class="row3">
+            <label>ECM stiffness (kPa)<input type="number" step="0.1" name="ecm.stiffness_kpa"/></label>
+            <label>Perfused?<select name="flow.perfused"><option value="">—</option><option>true</option><option>false</option></select></label>
+            <label>Flow rate (µL/min)<input type="number" step="0.01" name="flow.rate_ul_min"/></label>
+          </div>
+          <div class="row3">
+            <label>O₂ controlled?<select name="oxygen.controlled"><option value="">—</option><option>true</option><option>false</option></select></label>
+            <label>O₂ setpoint (%)<input type="number" step="0.1" name="oxygen.setpoint_percent"/></label>
+            <label>Temp / CO₂<input name="incubator" placeholder="37 °C / 5% CO₂"/></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>E) Media & supplements</legend>
+          <label>Basal medium (ChEBI)<input name="media" placeholder="DMEM/F12"/></label>
+          <label>Serum (%) or serum‑free<input name="serum" placeholder="10% FBS / serum‑free"/></label>
+          <label>Key supplements (name; catalog; conc)
+            <textarea name="supplements" placeholder="EGF; #12345; 50 ng/mL\nB27; #67890; 1x"></textarea>
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>F) Stimuli / perturbations</legend>
+          <table id="stimuliTable">
+            <thead><tr><th>Agent (ChEMBL/DrugBank)</th><th>Conc</th><th>Unit</th><th>Start (h)</th><th>Interval (h)</th><th>Duration (h)</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <button type="button" class="secondary mini" onclick="addStimulus()">+ Add stimulus</button>
+          <div class="hint">Immune checkpoints (e.g., anti‑PD‑1) can be listed as agents with units µg/mL.</div>
+        </fieldset>
+
+        <fieldset>
+          <legend>G) Intracellular readouts</legend>
+          <label>Pathway activity assays<input name="readouts.pathways" placeholder="NFκB reporter; JAK/STAT phospho‑flow"/></label>
+          <div class="row">
+            <label>Transcriptomics
+              <select name="readouts.rna">
+                <option value="">—</option>
+                <option>bulk RNA‑seq</option>
+                <option>scRNA‑seq</option>
+              </select>
+            </label>
+            <label>Timepoints (h, comma‑sep)<input name="timepoints_h" placeholder="0, 6, 24, 48"/></label>
+          </div>
+          <div class="row">
+            <label>Proteomics / Phospho‑proteomics<input name="readouts.proteomics"/></label>
+            <label>Metabolomics / Fluxomics<input name="readouts.metabolomics"/></label>
+          </div>
+          <label>Epigenetics<input name="readouts.epigenetics"/></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>H) Intercellular signals & microenvironment</legend>
+          <table id="cytoTable">
+            <thead><tr><th>Cytokine / Factor</th><th>Unit</th><th>Notes</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <button type="button" class="secondary mini" onclick="addCytokine()">+ Add cytokine/factor</button>
+          <div class="row">
+            <label>Ligand–Receptor pairs profiled<input name="lr_pairs" placeholder="PD‑1/PD‑L1; CTLA4/CD80"/></label>
+            <label>Secreted ECM components<input name="secreted_ecm" placeholder="Fibronectin; Collagen III"/></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>I) Spatial & imaging</legend>
+          <label>Imaging modalities<input name="imaging_modalities" placeholder="confocal; light‑sheet; IF"/></label>
+          <label>Quantification outputs<input name="imaging_quant" placeholder="cell density; infiltration index; clustering coef."/></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>J) Time design</legend>
+          <div class="row3">
+            <label>Total duration (h)<input type="number" step="0.1" name="duration_h"/></label>
+            <label>Sampling schedule<input name="sampling" placeholder="0, 6, 24, 48, 72"/></label>
+            <label>Replicates (bio / tech)<input name="replicates" placeholder="3 bio × 2 tech"/></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>K) Controls & quality</legend>
+          <div class="row">
+            <label>Negative / vehicle control<input name="control_neg"/></label>
+            <label>Positive control<input name="control_pos"/></label>
+          </div>
+          <div class="row">
+            <label>Viability (%)<input type="number" step="0.1" name="qc.viability"/></label>
+            <label>Proliferation index<input name="qc.proliferation"/></label>
+          </div>
+          <label>Apoptosis index<input name="qc.apoptosis"/></label>
+          <label>Contamination checks<input name="qc.contam" placeholder="Mycoplasma PCR: negative (date)"/></label>
+        </fieldset>
+
+        <fieldset style="grid-column:1/-1">
+          <legend>L) Data & files</legend>
+          <label>File list with paths
+            <textarea name="files" placeholder="/data/omics/run1.fastq.gz\n/data/imaging/exp42.ome.zarr"></textarea>
+          </label>
+          <label>Metadata standard used<input name="metadata_std" placeholder="MIACME; OME‑NGFF"/></label>
+        </fieldset>
+
+        <fieldset style="grid-column:1/-1">
+          <legend>M) Free‑text narrative (critical)</legend>
+          <textarea name="notes" placeholder="Protocol deviations, artifacts, rationale, expectations…"></textarea>
+        </fieldset>
+      </div>
+    </form>
+  </main>
+
+  <div class="actions">
+    <div class="wrap">
+      <div class="right">
+        <button type="button" class="secondary" onclick="prefillDemo()">Demo fill</button>
+        <button type="button" class="secondary" onclick="importJSON()">Import JSON</button>
+        <input type="file" id="jsonFile" accept="application/json" style="display:none"/>
+      </div>
+      <div class="spacer"></div>
+      <div class="right">
+        <span class="badge">Exports JSON matching schema</span>
+        <button type="button" onclick="downloadJSON()">Export JSON</button>
+        <button type="button" class="warn" onclick="document.getElementById('intakeForm').reset()">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <datalist id="specieslist">
+    <option value="Homo sapiens (9606)"></option>
+    <option value="Mus musculus (10090)"></option>
+  </datalist>
+
+<script>
+// ===== Helpers to add/remove table rows =====
+function addStimulus(row){
+  const tbody = document.querySelector('#stimuliTable tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input placeholder="Nivolumab / DB09035"/></td>
+    <td><input type="number" step="0.0001" placeholder="10"/></td>
+    <td><input placeholder="µg/mL"/></td>
+    <td><input type="number" step="0.1" placeholder="0"/></td>
+    <td><input type="number" step="0.1" placeholder="24"/></td>
+    <td><input type="number" step="0.1" placeholder="72"/></td>
+    <td><button type="button" class="secondary mini" onclick="this.closest('tr').remove()">Remove</button></td>`;
+  tbody.appendChild(tr);
+}
+function addCytokine(){
+  const tbody = document.querySelector('#cytoTable tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input placeholder="IL‑6 / VEGF‑A"/></td>
+    <td><input placeholder="pg/mL"/></td>
+    <td><input placeholder="assay/panel, notes"/></td>
+    <td><button type="button" class="secondary mini" onclick="this.closest('tr').remove()">Remove</button></td>`;
+  tbody.appendChild(tr);
+}
+// Initialize with one empty row for UX
+addStimulus();
+addCytokine();
+
+// ===== JSON export matching our schema =====
+function parsePercentFloat(v){ const x=parseFloat(v); return isNaN(x)?undefined:x; }
+function parseNumber(v){ const x=parseFloat(v); return isNaN(x)?undefined:x; }
+
+function collectTable(tableId){
+  const rows = Array.from(document.querySelectorAll(`#${tableId} tbody tr`));
+  return rows.map(r=>Array.from(r.querySelectorAll('input')).map(i=>i.value.trim()));
+}
+
+function formToJSON(){
+  const f = document.getElementById('intakeForm');
+  const get = n => f.querySelector(`[name="${n}"]`)?.value?.trim();
+
+  const stimuliRows = collectTable('stimuliTable').map(cols=>({
+    agent: cols[0]||undefined,
+    conc: parseNumber(cols[1]),
+    unit: cols[2]||undefined,
+    start_h: parseNumber(cols[3]),
+    interval_h: parseNumber(cols[4]),
+    duration_h: parseNumber(cols[5])
+  })).filter(s=>s.agent);
+
+  const cytokines = collectTable('cytoTable').map(cols=>({name: cols[0], unit: cols[1], notes: cols[2]})).filter(x=>x.name);
+
+  const cellOther = get('cell_fractions.other');
+  let additional = {};
+  if(cellOther){
+    cellOther.split(',').forEach(pair=>{
+      const [k,v] = pair.split('=');
+      if(k && v) additional[k.trim()] = parsePercentFloat(v);
+    });
+  }
+
+  const data = {
+    project_id: get('project_id'),
+    pi_lab: get('pi_lab') || undefined,
+    purpose: get('purpose') || undefined,
+    disease_mondo: get('disease_mondo') || undefined,
+    species: get('species') || undefined,
+    ethics: get('ethics') || undefined,
+    tissue: get('tissue') || undefined,
+    tumor_model: get('tumor_model') || undefined,
+    model_id: get('model_id') || undefined,
+    passage: parseNumber(get('passage')),
+    genetics: get('genetics') || undefined,
+    cell_fractions: {
+      tumor: parsePercentFloat(get('cell_fractions.tumor')),
+      endothelial: parsePercentFloat(get('cell_fractions.endothelial')),
+      fibroblast: parsePercentFloat(get('cell_fractions.fibroblast')),
+      macrophage_m1: parsePercentFloat(get('cell_fractions.macrophage_m1')),
+      macrophage_m2: parsePercentFloat(get('cell_fractions.macrophage_m2')),
+      nk: parsePercentFloat(get('cell_fractions.nk')),
+      t_cd4: parsePercentFloat(get('cell_fractions.t_cd4')),
+      t_cd8: parsePercentFloat(get('cell_fractions.t_cd8')),
+      ...additional
+    },
+    ecm: {
+      composition: get('ecm.composition') || undefined,
+      concentration_mg_ml: parseNumber(get('ecm.concentration_mg_ml')),
+      stiffness_kpa: parseNumber(get('ecm.stiffness_kpa'))
+    },
+    flow: {
+      perfused: get('flow.perfused')===''?undefined:(get('flow.perfused')==='true'),
+      rate_ul_min: parseNumber(get('flow.rate_ul_min'))
+    },
+    oxygen: {
+      controlled: get('oxygen.controlled')===''?undefined:(get('oxygen.controlled')==='true'),
+      setpoint_percent: parseNumber(get('oxygen.setpoint_percent'))
+    },
+    incubator: get('incubator') || undefined,
+    media: get('media') || undefined,
+    serum: get('serum') || undefined,
+    supplements: get('supplements') || undefined,
+    stimuli: stimuliRows,
+    readouts: {
+      pathways: get('readouts.pathways') || undefined,
+      rna: get('readouts.rna') || undefined,
+      proteomics: get('readouts.proteomics') || undefined,
+      metabolomics: get('readouts.metabolomics') || undefined,
+      epigenetics: get('readouts.epigenetics') || undefined
+    },
+    timepoints_h: (get('timepoints_h')||'').split(',').map(s=>parseNumber(s.trim())).filter(v=>v!==undefined),
+    lr_pairs: get('lr_pairs') || undefined,
+    secreted_ecm: get('secreted_ecm') || undefined,
+    imaging_modalities: get('imaging_modalities') || undefined,
+    imaging_quant: get('imaging_quant') || undefined,
+    duration_h: parseNumber(get('duration_h')),
+    sampling: get('sampling') || undefined,
+    replicates: get('replicates') || undefined,
+    controls: [get('control_neg'), get('control_pos')].filter(Boolean),
+    qc: {
+      viability: parseNumber(get('qc.viability')),
+      proliferation: get('qc.proliferation') || undefined,
+      apoptosis: get('qc.apoptosis') || undefined,
+      contamination: get('qc.contam') || undefined
+    },
+    files: (get('files')||'').split('\n').map(s=>s.trim()).filter(Boolean),
+    metadata_std: get('metadata_std') || undefined,
+    notes: get('notes') || undefined
+  };
+  return data;
+}
+
+function downloadJSON(){
+  const data = formToJSON();
+  // Basic required check
+  if(!data.project_id || !data.species || !data.tissue){
+    alert('Please fill the required fields: Project ID, Species, Tissue.');
+    return;
+  }
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (data.project_id||'organoid') + '_intake.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function importJSON(){
+  const input = document.getElementById('jsonFile');
+  input.onchange = async (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const text = await file.text();
+    try{ const obj = JSON.parse(text); fillForm(obj); }
+    catch(err){ alert('Invalid JSON: '+err.message); }
+    finally{ input.value=''; }
+  };
+  input.click();
+}
+
+function fillForm(d){
+  const f = document.getElementById('intakeForm');
+  const set = (n,v)=>{ const el=f.querySelector(`[name="${n}"]`); if(el && v!==undefined && v!==null) el.value = v; };
+  set('project_id', d.project_id);
+  set('pi_lab', d.pi_lab);
+  set('purpose', d.purpose);
+  set('disease_mondo', d.disease_mondo);
+  set('species', d.species);
+  set('ethics', d.ethics);
+  set('tissue', d.tissue);
+  set('tumor_model', d.tumor_model);
+  set('model_id', d.model_id);
+  set('passage', d.passage);
+  set('genetics', d.genetics);
+  const cf = d.cell_fractions||{};
+  set('cell_fractions.tumor', cf.tumor);
+  set('cell_fractions.endothelial', cf.endothelial);
+  set('cell_fractions.fibroblast', cf.fibroblast);
+  set('cell_fractions.macrophage_m1', cf.macrophage_m1);
+  set('cell_fractions.macrophage_m2', cf.macrophage_m2);
+  set('cell_fractions.nk', cf.nk);
+  set('cell_fractions.t_cd4', cf.t_cd4);
+  set('cell_fractions.t_cd8', cf.t_cd8);
+  // additional others are not reversed into text field; keep manual
+  set('ecm.composition', d.ecm?.composition);
+  set('ecm.concentration_mg_ml', d.ecm?.concentration_mg_ml);
+  set('ecm.stiffness_kpa', d.ecm?.stiffness_kpa);
+  set('flow.perfused', (d.flow?.perfused===undefined?'' : (d.flow?.perfused? 'true':'false')));
+  set('flow.rate_ul_min', d.flow?.rate_ul_min);
+  set('oxygen.controlled', (d.oxygen?.controlled===undefined?'' : (d.oxygen?.controlled? 'true':'false')));
+  set('oxygen.setpoint_percent', d.oxygen?.setpoint_percent);
+  set('incubator', d.incubator);
+  set('media', d.media);
+  set('serum', d.serum);
+  set('supplements', d.supplements);
+  // stimuli
+  document.querySelector('#stimuliTable tbody').innerHTML='';
+  (d.stimuli||[]).forEach(s=>{
+    addStimulus();
+    const last = document.querySelector('#stimuliTable tbody tr:last-child');
+    const ins = last.querySelectorAll('input');
+    ins[0].value = s.agent||''; ins[1].value = s.conc??''; ins[2].value = s.unit||'';
+    ins[3].value = s.start_h??''; ins[4].value = s.interval_h??''; ins[5].value = s.duration_h??'';
+  });
+  // cytokines
+  document.querySelector('#cytoTable tbody').innerHTML='';
+  (d.cytokines||[]).forEach(c=>{ addCytokine(); const last=document.querySelector('#cytoTable tbody tr:last-child').querySelectorAll('input'); last[0].value=c.name||''; last[1].value=c.unit||''; last[2].value=c.notes||''; });
+  set('readouts.pathways', d.readouts?.pathways);
+  set('readouts.rna', d.readouts?.rna);
+  set('timepoints_h', (d.timepoints_h||[]).join(', '));
+  set('readouts.proteomics', d.readouts?.proteomics);
+  set('readouts.metabolomics', d.readouts?.metabolomics);
+  set('readouts.epigenetics', d.readouts?.epigenetics);
+  set('lr_pairs', d.lr_pairs);
+  set('secreted_ecm', d.secreted_ecm);
+  set('imaging_modalities', d.imaging_modalities);
+  set('imaging_quant', d.imaging_quant);
+  set('duration_h', d.duration_h);
+  set('sampling', d.sampling);
+  set('replicates', d.replicates);
+  set('control_neg', (d.controls||[])[0]);
+  set('control_pos', (d.controls||[])[1]);
+  set('qc.viability', d.qc?.viability);
+  set('qc.proliferation', d.qc?.proliferation);
+  set('qc.apoptosis', d.qc?.apoptosis);
+  set('qc.contam', d.qc?.contamination);
+  set('files', (d.files||[]).join('\n'));
+  set('metadata_std', d.metadata_std);
+  set('notes', d.notes);
+}
+
+function prefillDemo(){
+  fillForm({
+    project_id:"OCC-2025-042", species:"Homo sapiens (9606)", tissue:"UBERON:0002048",
+    purpose:"Test anti‑PD‑1 response under hypoxia in a vascularized tumor organoid",
+    disease_mondo:"MONDO:0004992", tumor_model:"patient-derived", model_id:"PDX‑1234",
+    passage:2, genetics:"TP53 R175H; EGFR amp", cell_fractions:{tumor:70,endothelial:10,fibroblast:10,t_cd8:5,t_cd4:3,nk:2},
+    ecm:{composition:"Collagen I + Matrigel", concentration_mg_ml:6, stiffness_kpa:1.5},
+    flow:{perfused:true, rate_ul_min:2.0}, oxygen:{controlled:true, setpoint_percent:1.0}, incubator:"37°C / 5% CO₂",
+    media:"DMEM/F12", serum:"serum‑free", supplements:"EGF; #12345; 50 ng/mL\nB27; #67890; 1x",
+    stimuli:[{agent:"Nivolumab", conc:10, unit:"µg/mL", start_h:0, interval_h:24, duration_h:72}],
+    readouts:{pathways:"NFκB reporter; pSTAT1", rna:"scRNA‑seq", proteomics:"TMT‑MS", metabolomics:"LC‑MS", epigenetics:"ATAC‑seq"},
+    timepoints_h:[0,6,24,48], lr_pairs:"PD‑1/PD‑L1", secreted_ecm:"Fibronectin",
+    imaging_modalities:"confocal; IF", imaging_quant:"infiltration index; clustering coef.",
+    duration_h:96, sampling:"0,6,24,48,72,96", replicates:"3 bio × 2 tech",
+    controls:["vehicle","IFNγ treatment"], qc:{viability:86.5, proliferation:"Ki‑67 40%", apoptosis:"Caspase‑3 8%", contamination:"Mycoplasma negative (2025‑08‑20)"},
+    cytokines:[{name:"VEGF‑A", unit:"pg/mL", notes:"ELISA"},{name:"IL‑6", unit:"pg/mL", notes:"Luminex"}],
+    files:["/data/omics/run1.fastq.gz","/data/imaging/exp42.ome.zarr"], metadata_std:"MIACME; OME‑NGFF",
+    notes:"Excluded CD8⁺ T cells in some replicates to probe stromal effects."
+  });
+}
+// ==== DOT generation helpers =====================================================
+function downloadText(filename, text){
+  const blob = new Blob([text], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function booly(v){ return v===true || v===\"true\"; }
+function hasPositiveFraction(v){ return typeof v === 'number' && v > 0; }
+
+function buildInVivoVsExperimentDOT(d){
+  // Determine which experiment nodes exist from the form
+  const ex = {
+    tumor: hasPositiveFraction(d.cell_fractions?.tumor),
+    endothelial: hasPositiveFraction(d.cell_fractions?.endothelial),
+    fibroblast: hasPositiveFraction(d.cell_fractions?.fibroblast),
+    hypoxia: d.oxygen && (d.oxygen.controlled===true || d.oxygen.controlled===\"true\"),
+    glycolysis: !!(d.readouts && d.readouts.metabolomics),
+    vegf: (d.cytokines||[]).some(c=>/vegf/i.test(c.name||'')),
+    ecm_stiff: typeof d.ecm?.stiffness_kpa === 'number'
+  };
+  // Fallback heuristics: if purpose mentions hypoxia/VEGF, include them
+  if(!ex.hypoxia && /hypox/i.test(d.purpose||'')) ex.hypoxia = true;
+  if(!ex.vegf && /vegf/i.test(d.purpose||'')) ex.vegf = true;
+
+  const exNodeStyle = (fill,color)=>`, fillcolor=\\"${fill}\\", color=\\"${color}\\"`;
+  const exCell = n=> ex[n] ? exNodeStyle('#ffdede','#cc3333') : '';
+  const exIntra = n=> ex[n] ? exNodeStyle('#ffe7cc','#cc6a1b') : '';
+  const exInter = n=> ex[n] ? exNodeStyle('#e8f5ff','#1f6fb2') : '';
+
+  const lines = [];
+  lines.push('digraph InVivoVsExperiment {');
+  lines.push('  rankdir=LR;');
+  lines.push('  labelloc=\\"t\\";');
+  lines.push('  label=\\"In-vivo (grey) vs Experiment Subgraph (colored)\nAuto-generated from intake form\\";');
+  lines.push('  node [style=filled, fillcolor=\\"#f2f2f2\\", color=\\"#888888\\", fontname=\\"Helvetica\\"];');
+  lines.push('  edge [color=\\"#aaaaaa\\", arrowsize=0.8];');
+
+  // Cellular cluster
+  lines.push('  subgraph cluster_cellular {');
+  lines.push('    label=\\"Layer 1 — Cellular\\"; color=\\"#cccccc\\";');
+  lines.push(`    Tumor [label=\\"Tumor cells\\", shape=oval${exCell('tumor')}];`);
+  lines.push('    CD8_T [label=\\"CD8+ T\\", shape=oval];');
+  lines.push('    CD4_T [label=\\"CD4+ T\\", shape=oval];');
+  lines.push('    NK    [label=\\"NK\\", shape=oval];');
+  lines.push('    Mac_M1 [label=\\"Macrophage M1\\", shape=oval];');
+  lines.push('    Mac_M2 [label=\\"Macrophage M2\\", shape=oval];');
+  lines.push(`    Endothelial [label=\\"Endothelial\\", shape=oval${exCell('endothelial')}];`);
+  lines.push(`    Fibroblast  [label=\\"Fibroblast\\", shape=oval${exCell('fibroblast')}];`);
+  lines.push('  }');
+
+  // Intracellular cluster
+  lines.push('  subgraph cluster_intracellular {');
+  lines.push('    label=\\"Layer 2 — Intracellular\\"; color=\\"#cccccc\\";');
+  lines.push('    PI3K_AKT    [label=\\"PI3K/AKT\\", shape=box];');
+  lines.push('    RAS_RAF_MEK [label=\\"RAS/RAF/MEK\\", shape=box];');
+  lines.push('    p53         [label=\\"p53\\", shape=box];');
+  lines.push('    NFkB        [label=\\"NFκB\\", shape=box];');
+  lines.push('    JAK_STAT    [label=\\"JAK/STAT\\", shape=box];');
+  lines.push('    OxPhos      [label=\\"OxPhos\\", shape=box];');
+  lines.push(`    Hypoxia     [label=\\"Hypoxia\\", shape=box${exIntra('hypoxia')}];`);
+  lines.push(`    Glycolysis  [label=\\"Glycolysis\\", shape=box${exIntra('glycolysis')}];`);
+  lines.push('  }');
+
+  // Intercellular cluster
+  lines.push('  subgraph cluster_intercellular {');
+  lines.push('    label=\\"Layer 3 — Intercellular\\"; color=\\"#cccccc\\";');
+  lines.push('    IL2       [label=\\"IL-2\\", shape=diamond];');
+  lines.push('    IL6       [label=\\"IL-6\\", shape=diamond];');
+  lines.push('    TNFa      [label=\\"TNFα\\", shape=diamond];');
+  lines.push('    IFNg      [label=\\"IFNγ\\", shape=diamond];');
+  lines.push('    TGFb      [label=\\"TGFβ\\", shape=diamond];');
+  lines.push('    PD1_PDL1  [label=\\"PD-1/PD-L1\\", shape=diamond];');
+  lines.push(`    VEGF      [label=\\"VEGF\\", shape=diamond${exInter('vegf')}];`);
+  lines.push(`    ECM_Stiff [label=\\"ECM stiffness\\", shape=diamond${exInter('ecm_stiff')}];`);
+  lines.push('  }');
+
+  // In-vivo baseline edges
+  lines.push('  CD8_T->Tumor [label=\\"cytotoxicity / IFNγ\\", fontsize=9];');
+  lines.push('  IFNg->Tumor  [label=\\"suppression\\", fontsize=9, style=dashed];');
+  lines.push('  Tumor->Mac_M2 [label=\\"polarization via IL-6\\", fontsize=9];');
+  lines.push('  NFkB->IL6    [label=\\"induces\\", fontsize=9];');
+  lines.push('  JAK_STAT->PD1_PDL1 [label=\\"upregulates\\", fontsize=9, style=dashed];');
+  lines.push('  PI3K_AKT->RAS_RAF_MEK [label=\\"crosstalk\\", fontsize=9, style=dotted];');
+  lines.push('  p53->Tumor   [label=\\"apoptosis check\\", fontsize=9, style=dashed];');
+  lines.push('  OxPhos->Tumor [label=\\"ATP supply\\", fontsize=9, style=dotted];');
+  lines.push('  CD4_T->Mac_M1 [label=\\"activation\\", fontsize=9, style=dotted];');
+  lines.push('  NK->Tumor    [label=\\"lysis\\", fontsize=9];');
+
+  // Cross-layer in-vivo edges (grey)
+  lines.push('  Hypoxia->VEGF [label=\\"angiogenesis\\", fontsize=9, color=\\"#aaaaaa\\"];');
+  lines.push('  Tumor->Endothelial [label=\\"VEGF paracrine\\", fontsize=9, color=\\"#aaaaaa\\"];');
+  lines.push('  Fibroblast->ECM_Stiff [label=\\"matrix remodeling\\", fontsize=9, color=\\"#aaaaaa\\"];');
+
+  // Experiment-highlighted edges (colored)
+  if(ex.hypoxia && ex.vegf){ lines.push('  Hypoxia->VEGF [label=\\"angiogenesis\\", color=\\"#1f6fb2\\", penwidth=2.5];'); }
+  if(ex.tumor && ex.endothelial && ex.vegf){ lines.push('  Tumor->Endothelial [label=\\"VEGF paracrine\\", color=\\"#1f6fb2\\", penwidth=2.5];'); }
+  if(ex.fibroblast && ex.ecm_stiff){ lines.push('  Fibroblast->ECM_Stiff [label=\\"matrix remodeling\\", color=\\"#cc3333\\", penwidth=2.5];'); }
+
+  lines.push('}');
+  return lines.join('\n');
+}
+
+function buildDifferenceDOT(d){
+  const ex = {
+    tumor: hasPositiveFraction(d.cell_fractions?.tumor),
+    endothelial: hasPositiveFraction(d.cell_fractions?.endothelial),
+    fibroblast: hasPositiveFraction(d.cell_fractions?.fibroblast),
+    hypoxia: d.oxygen && (d.oxygen.controlled===true || d.oxygen.controlled===\"true\"),
+    glycolysis: !!(d.readouts && d.readouts.metabolomics),
+    vegf: (d.cytokines||[]).some(c=>/vegf/i.test(c.name||'')),
+    ecm_stiff: typeof d.ecm?.stiffness_kpa === 'number'
+  };
+  if(!ex.hypoxia && /hypox/i.test(d.purpose||'')) ex.hypoxia = true;
+  if(!ex.vegf && /vegf/i.test(d.purpose||'')) ex.vegf = true;
+
+  const hide = n=> ex[n] ? ', style=\\"invis\\"' : '';
+  const lines = [];
+  lines.push('digraph InVivoMinusExperiment {');
+  lines.push('  rankdir=LR; labelloc=\\"t\\";');
+  lines.push('  label=\\"Difference graph: in-vivo MINUS experiment\nAuto-generated from intake form\\";');
+  lines.push('  node [style=filled, fillcolor=\\"#f2f2f2\\", color=\\"#888888\\", fontname=\\"Helvetica\\"];');
+  lines.push('  edge [color=\\"#aaaaaa\\", arrowsize=0.8];');
+  lines.push('  subgraph cluster_cellular { label=\\"Layer 1 — Cellular\\"; color=\\"#cccccc\\";');
+  lines.push(`    Tumor [label=\\"Tumor cells\\", shape=oval${hide('tumor')}]`);
+  lines.push('    CD8_T [label=\\"CD8+ T\\", shape=oval]');
+  lines.push('    CD4_T [label=\\"CD4+ T\\", shape=oval]');
+  lines.push('    NK    [label=\\"NK\\", shape=oval]');
+  lines.push('    Mac_M1 [label=\\"Macrophage M1\\", shape=oval]');
+  lines.push('    Mac_M2 [label=\\"Macrophage M2\\", shape=oval]');
+  lines.push(`    Endothelial [label=\\"Endothelial\\", shape=oval${hide('endothelial')}]`);
+  lines.push(`    Fibroblast  [label=\\"Fibroblast\\", shape=oval${hide('fibroblast')}]`);
+  lines.push('  }');
+  lines.push('  subgraph cluster_intracellular { label=\\"Layer 2 — Intracellular\\"; color=\\"#cccccc\\";');
+  lines.push('    PI3K_AKT [label=\\"PI3K/AKT\\", shape=box]');
+  lines.push('    RAS_RAF_MEK [label=\\"RAS/RAF/MEK\\", shape=box]');
+  lines.push('    p53 [label=\\"p53\\", shape=box]');
+  lines.push('    NFkB [label=\\"NFκB\\", shape=box]');
+  lines.push('    JAK_STAT [label=\\"JAK/STAT\\", shape=box]');
+  lines.push('    OxPhos [label=\\"OxPhos\\", shape=box]');
+  lines.push(`    Hypoxia [label=\\"Hypoxia\\", shape=box${hide('hypoxia')}]`);
+  lines.push(`    Glycolysis [label=\\"Glycolysis\\", shape=box${hide('glycolysis')}]`);
+  lines.push('  }');
+  lines.push('  subgraph cluster_intercellular { label=\\"Layer 3 — Intercellular\\"; color=\\"#cccccc\\";');
+  lines.push('    IL2 [label=\\"IL-2\\", shape=diamond]');
+  lines.push('    IL6 [label=\\"IL-6\\", shape=diamond]');
+  lines.push('    TNFa [label=\\"TNFα\\", shape=diamond]');
+  lines.push('    IFNg [label=\\"IFNγ\\", shape=diamond]');
+  lines.push('    TGFb [label=\\"TGFβ\\", shape=diamond]');
+  lines.push('    PD1_PDL1 [label=\\"PD-1/PD-L1\\", shape=diamond]');
+  lines.push(`    VEGF [label=\\"VEGF\\", shape=diamond${hide('vegf')}]`);
+  lines.push(`    ECM_Stiff [label=\\"ECM stiffness\\", shape=diamond${hide('ecm_stiff')}]`);
+  lines.push('  }');
+  // Edges that are in experiment should be hidden
+  const hideEdge = cond => cond ? ', style=\\"invis\\"' : '';
+  lines.push(`  CD8_T->Tumor [label=\\"cytotoxicity / IFNγ\\"${hideEdge(false)}]`);
+  lines.push(`  IFNg->Tumor  [label=\\"suppression\\", style=dashed${hideEdge(false)}]`);
+  lines.push(`  Tumor->Mac_M2 [label=\\"polarization via IL-6\\"${hideEdge(false)}]`);
+  lines.push(`  NFkB->IL6    [label=\\"induces\\"${hideEdge(false)}]`);
+  lines.push(`  JAK_STAT->PD1_PDL1 [label=\\"upregulates\\", style=dashed${hideEdge(false)}]`);
+  lines.push(`  PI3K_AKT->RAS_RAF_MEK [label=\\"crosstalk\\", style=dotted${hideEdge(false)}]`);
+  lines.push(`  p53->Tumor [label=\\"apoptosis check\\", style=dashed${hideEdge(false)}]`);
+  lines.push(`  OxPhos->Tumor [label=\\"ATP supply\\", style=dotted${hideEdge(false)}]`);
+  lines.push(`  CD4_T->Mac_M1 [label=\\"activation\\", style=dotted${hideEdge(false)}]`);
+  lines.push(`  NK->Tumor [label=\\"lysis\\"${hideEdge(false)}]`);
+  lines.push(`  Hypoxia->VEGF [label=\\"angiogenesis\\"${hideEdge(ex.hypoxia && ex.vegf)}]`);
+  lines.push(`  Tumor->Endothelial [label=\\"VEGF paracrine\\"${hideEdge(ex.tumor && ex.endothelial && ex.vegf)}]`);
+  lines.push(`  Fibroblast->ECM_Stiff [label=\\"matrix remodeling\\"${hideEdge(ex.fibroblast && ex.ecm_stiff)}]`);
+  lines.push('}');
+  return lines.join('\n');
+}
+
+function generateDOTFiles(){
+  const data = formToJSON();
+  const dot1 = buildInVivoVsExperimentDOT(data);
+  const dot2 = buildDifferenceDOT(data);
+  const base = (data.project_id||'organoid').replace(/\s+/g,'_');
+  downloadText(base + '_invivo_vs_experiment.dot', dot1);
+  downloadText(base + '_difference.dot', dot2);
+}
+// ==== END DOT helpers ============================================================
+</script>
+</body>
+</html>
