@@ -6,18 +6,37 @@
   <title>Experimental Norms Form — IL‑33 Demo Ready</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .card { @apply bg-white rounded-2xl shadow p-6; }
-    .section-title { @apply text-xl font-semibold mt-6 mb-2; }
-    .subgrid { @apply grid grid-cols-1 md:grid-cols-2 gap-4; }
-    label { @apply text-sm font-medium text-gray-700; }
-    input[type="text"], input[type="number"], textarea, select { @apply w-full rounded-xl border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500; }
-    .btn { @apply inline-flex items-center justify-center rounded-xl border px-4 py-2 text-sm font-semibold transition; }
-    .btn-primary { @apply bg-indigo-600 text-white hover:bg-indigo-700 border-transparent; }
-    .btn-secondary { @apply bg-white text-gray-900 border-gray-300 hover:bg-gray-50; }
-    .btn-danger { @apply bg-rose-600 text-white hover:bg-rose-700 border-transparent; }
-    .pill { @apply inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700; }
-    .sr { position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden; }
-  </style>
+  :root {
+    --radius-2xl: 1rem;
+    --shadow-1: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.03);
+    --shadow-2: 0 10px 15px rgba(0,0,0,.1), 0 4px 6px rgba(0,0,0,.05);
+    --indigo-500: #6366f1;
+    --indigo-600: #4f46e5;
+    --rose-600: #e11d48;
+    --gray-50: #f9fafb; --gray-100:#f3f4f6; --gray-300:#d1d5db; --gray-500:#6b7280; --gray-700:#374151;
+    --white:#fff; --black:#111827;
+  }
+  body { background: var(--gray-50); color: var(--black); }
+  .card { background:#fff; border-radius: var(--radius-2xl); box-shadow: var(--shadow-2); padding: 1.5rem; }
+  .section-title { font-size: 1.25rem; font-weight: 600; margin: 1rem 0 .5rem; }
+  .subgrid { display:grid; grid-template-columns: 1fr; gap:1rem; }
+  @media (min-width: 768px){ .subgrid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  label { display:block; font-size:.875rem; font-weight:500; color:var(--gray-700); margin-bottom:.25rem; }
+  input[type="text"], input[type="number"], textarea, select {
+    width:100%; border:1px solid var(--gray-300); border-radius:.75rem; padding:.5rem .75rem;
+    outline:none;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--indigo-500); box-shadow: 0 0 0 2px rgba(99,102,241,.3); }
+  .btn {
+    display:inline-flex; align-items:center; justify-content:center; border-radius:.75rem; padding:.5rem 1rem;
+    font-size:.875rem; font-weight:600; border:1px solid var(--gray-300); background:#fff; color:#111;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .btn-primary { background: var(--indigo-600); color:#fff; border-color: transparent; }
+  .btn-primary:hover { filter:brightness(0.95); }
+  .btn-secondary:hover { background: var(--gray-100); }
+  .btn-danger { background: var(--rose-600); color:#fff; border-color: transparent; }
+</style>
 </head>
 <body class="bg-gray-50 text-gray-900">
   <div class="max-w-6xl mx-auto p-4 md:p-8 space-y-6">
