@@ -488,6 +488,7 @@ function fillForm(d){
   set('metadata_std', d.metadata_std);
   set('notes', d.notes);
 }
+<script>
 function prefillDemo(){
   fillForm({
     project_id: "OCC-2025-IL33-EoEV",
@@ -495,7 +496,7 @@ function prefillDemo(){
     tissue: "UBERON:0000178", // blood (eosinophil donors); recipient = tumor cell lines
     purpose: "Test effects of extracellular vesicles (EVs) from IL-33–activated eosinophils on tumor cells (cell-cycle, phenotype, migration, metastasis).",
     disease_mondo: "NA", // not specified in abstract
-    tumor_model: "cell line",
+    tumor_model: "cell-line",            // <-- matches your <select> options
     model_id: "unspecified (per abstract)",
     passage: null,
     genetics: "",
@@ -558,6 +559,9 @@ function prefillDemo(){
     metadata_std: "MISEV2018; OME-NGFF; MIACME (partial)",
     notes: "Eo33-EV uptake by tumor cells induces CDKI expression and G0/G1 arrest; epithelial-like features; reduced migration and spheroid formation; in vivo syngeneic model shows decreased lung metastasis for Eo33-EV–treated cells. Include EV normalization per protein or particle count. Add IL-5 EVs as explicit control for difference graphs."
   });
+}
+</script>
+
 }
 }
 // ==== DOT generation helpers =====================================================
