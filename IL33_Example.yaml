@@ -1,0 +1,64 @@
+title: "IL-33–activated eosinophil EVs reprogram tumor cells"
+short_handle: "Eo33-EV_reprogramming"
+biological_rationale: >
+  IL-33 activation of eosinophils increases EV output and changes EV cargo.
+  Tumor cells that internalize these EVs upregulate CDKI genes, arrest in G0/G1,
+  adopt epithelial-like features, and show reduced proliferation/migration and metastasis.
+system:
+  species: 
+    - Mus musculus
+    - Homo sapiens (tumor cell lines)
+  cell_types:
+    donor_cells:
+      - Eosinophil (mouse, human)
+    recipient_cells:
+      - Tumor cells (mouse, human)
+  microenvironment:
+    - 2D culture
+    - Tumor spheroids (3D)
+    - Syngeneic mouse model (lung metastasis readout)
+perturbations:
+  stimuli_to_donor_cells:
+    - name: IL-33
+      role: activation
+      control: IL-5 activation (comparative)
+  derived_particles:
+    - name: extracellular vesicles
+      subtypes:
+        - Eo33-EV: EVs from IL-33–activated eosinophils
+        - Eo5-EV: EVs from IL-5–activated eosinophils (control)
+assays_and_readouts:
+  uptake: EV incorporation by tumor cells (qual/quant)
+  cell_cycle:
+    - CDKI gene expression ↑
+    - G0/G1 arrest
+  proliferation: ↓
+  spheroid_formation: ↓
+  migration_morphology:
+    - E-cadherin ↑
+    - N-cadherin ↓
+    - Cell elongation ↓
+    - Migratory extent ↓
+  transcriptomics_EV:
+    - RNA-seq of EV cargo
+    - Eo33-EV enriched for tumor suppressor mRNAs; epithelial/negative-regulation pathways
+  in_vivo:
+    - syngeneic injection of treated tumor cells → lung metastases ↓
+controls:
+  - EVs from IL-5–activated eosinophils (Eo5-EV)
+  - vehicle/no-EV control
+hypotheses:
+  - IL-33 shifts eosinophil EV cargo toward tumor-suppressive programs.
+  - Eo33-EV uptake induces epithelial-like, low-motility tumor phenotypes and cell-cycle arrest.
+key_variables:
+  - IL-33 dose/time
+  - EV yield and normalization (per donor cell/protein/particle number)
+  - Tumor cell line identity
+  - EV:tumor cell ratio, exposure time
+  - Readout timepoints
+evidence_summary: >
+  IL-33 increases EV production; Eo33-EV (but not Eo5-EV) drives CDKI upregulation, G0/G1 arrest,
+  epithelial-like shift, reduced migration/spheroid formation, and reduced lung metastasis in mice.
+  EV RNA-seq shows tumor-suppressor and epithelial/negative-regulation pathway enrichment in Eo33-EV.
+references:
+  - "IL-33 stimulates the anticancer activities of eosinophils through extracellular vesicle-driven reprogramming of tumor cells" (abstract). :contentReference[oaicite:0]{index=0}
