@@ -488,26 +488,77 @@ function fillForm(d){
   set('metadata_std', d.metadata_std);
   set('notes', d.notes);
 }
-
 function prefillDemo(){
   fillForm({
-    project_id:"OCC-2025-042", species:"Homo sapiens (9606)", tissue:"UBERON:0002048",
-    purpose:"Test anti‑PD‑1 response under hypoxia in a vascularized tumor organoid",
-    disease_mondo:"MONDO:0004992", tumor_model:"patient-derived", model_id:"PDX‑1234",
-    passage:2, genetics:"TP53 R175H; EGFR amp", cell_fractions:{tumor:70,endothelial:10,fibroblast:10,t_cd8:5,t_cd4:3,nk:2},
-    ecm:{composition:"Collagen I + Matrigel", concentration_mg_ml:6, stiffness_kpa:1.5},
-    flow:{perfused:true, rate_ul_min:2.0}, oxygen:{controlled:true, setpoint_percent:1.0}, incubator:"37°C / 5% CO₂",
-    media:"DMEM/F12", serum:"serum‑free", supplements:"EGF; #12345; 50 ng/mL\nB27; #67890; 1x",
-    stimuli:[{agent:"Nivolumab", conc:10, unit:"µg/mL", start_h:0, interval_h:24, duration_h:72}],
-    readouts:{pathways:"NFκB reporter; pSTAT1", rna:"scRNA‑seq", proteomics:"TMT‑MS", metabolomics:"LC‑MS", epigenetics:"ATAC‑seq"},
-    timepoints_h:[0,6,24,48], lr_pairs:"PD‑1/PD‑L1", secreted_ecm:"Fibronectin",
-    imaging_modalities:"confocal; IF", imaging_quant:"infiltration index; clustering coef.",
-    duration_h:96, sampling:"0,6,24,48,72,96", replicates:"3 bio × 2 tech",
-    controls:["vehicle","IFNγ treatment"], qc:{viability:86.5, proliferation:"Ki‑67 40%", apoptosis:"Caspase‑3 8%", contamination:"Mycoplasma negative (2025‑08‑20)"},
-    cytokines:[{name:"VEGF‑A", unit:"pg/mL", notes:"ELISA"},{name:"IL‑6", unit:"pg/mL", notes:"Luminex"}],
-    files:["/data/omics/run1.fastq.gz","/data/imaging/exp42.ome.zarr"], metadata_std:"MIACME; OME‑NGFF",
-    notes:"Excluded CD8⁺ T cells in some replicates to probe stromal effects."
+    project_id: "OCC-2025-IL33-EoEV",
+    species: "Mus musculus (10090); Homo sapiens (9606)",
+    tissue: "UBERON:0000178", // blood (eosinophil donors); recipient = tumor cell lines
+    purpose: "Test effects of extracellular vesicles (EVs) from IL-33–activated eosinophils on tumor cells (cell-cycle, phenotype, migration, metastasis).",
+    disease_mondo: "NA", // not specified in abstract
+    tumor_model: "cell line",
+    model_id: "unspecified (per abstract)",
+    passage: null,
+    genetics: "",
+    cell_fractions: { tumor: 100, endothelial: 0, fibroblast: 0, t_cd8: 0, t_cd4: 0, nk: 0 },
+
+    // Mostly 2D assays; spheroid assays also reported
+    ecm: { composition: "NA (primarily 2D); spheroids for some assays", concentration_mg_ml: 0, stiffness_kpa: null },
+    flow: { perfused: false, rate_ul_min: 0 },
+    oxygen: { controlled: false, setpoint_percent: null },
+    incubator: "37°C / 5% CO₂",
+
+    media: "RPMI-1640 (eosinophils) / DMEM or appropriate tumor cell media (recipient)",
+    serum: "serum-free during EV collection; standard otherwise",
+    supplements: "",
+
+    // Stimuli include donor-cell activation and recipient-cell EV treatments
+    stimuli: [
+      { agent: "IL-33 (donor activation)", conc: 10, unit: "ng/mL", start_h: 0, interval_h: 0, duration_h: 24 },
+      { agent: "IL-5 (control donor activation)", conc: 10, unit: "ng/mL", start_h: 0, interval_h: 0, duration_h: 24 },
+      { agent: "Eo33-EV (to tumor cells)", conc: 1e9, unit: "particles/mL", start_h: 0, interval_h: 0, duration_h: 48 },
+      { agent: "Eo5-EV (control to tumor cells)", conc: 1e9, unit: "particles/mL", start_h: 0, interval_h: 0, duration_h: 48 }
+    ],
+
+    readouts: {
+      pathways: "Epithelial shift markers (E-cadherin↑, N-cadherin↓); cell-cycle regulators (CDK inhibitors↑)",
+      rna: "RNA-seq of EV cargo (tumor-suppressor/epithelial/negative-regulation pathways enriched in Eo33-EV)",
+      proteomics: "NA",
+      metabolomics: "NA",
+      epigenetics: "NA"
+    },
+
+    timepoints_h: [0, 24, 48, 72],
+    lr_pairs: "", // not applicable
+    secreted_ecm: "NA",
+
+    imaging_modalities: "confocal; TEM (EV characterization when available); brightfield for morphology",
+    imaging_quant: "cell elongation index; migration distance; spheroid area/compactness",
+
+    duration_h: 72,
+    sampling: "0,24,48,72",
+    replicates: "≥3 bio × 2 tech",
+
+    controls: ["Eo5-EV (IL-5–activated eosinophil EVs)", "no-EV vehicle"],
+
+    qc: {
+      viability: null,
+      proliferation: "Ki-67 ↓ with Eo33-EV",
+      apoptosis: "context-dependent; not primary endpoint",
+      contamination: "Mycoplasma negative (if tested)"
+    },
+
+    cytokines: [],
+
+    files: [
+      "/data/ev/np_tracking/Eo33EV_counts.csv",
+      "/data/transcriptomics/EV_RNAseq/manifest.txt",
+      "/data/imaging/morphology/fields.ome.zarr"
+    ],
+
+    metadata_std: "MISEV2018; OME-NGFF; MIACME (partial)",
+    notes: "Eo33-EV uptake by tumor cells induces CDKI expression and G0/G1 arrest; epithelial-like features; reduced migration and spheroid formation; in vivo syngeneic model shows decreased lung metastasis for Eo33-EV–treated cells. Include EV normalization per protein or particle count. Add IL-5 EVs as explicit control for difference graphs."
   });
+}
 }
 // ==== DOT generation helpers =====================================================
 function downloadText(filename, text){
